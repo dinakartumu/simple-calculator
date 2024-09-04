@@ -5,7 +5,7 @@ const ThemeSwitcher = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    <div className="flex mb-4 w-full">
+    <div className="flex w-full">
       <div className="flex-1">
         <ToggleButton
           label="Light Mode"
