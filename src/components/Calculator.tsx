@@ -1,15 +1,32 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Display from "./Output";
 import Button from "./Button";
-import Checkbox from "./Checkbox";
-import { useDarkMode } from "../contexts/DarkModeContext";
 
-const Calculator = () => {
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+const buttons = [
+  "7",
+  "8",
+  "9",
+  "/",
+  "4",
+  "5",
+  "6",
+  "*",
+  "1",
+  "2",
+  "3",
+  "-",
+  "0",
+  "=",
+  "C",
+  "+",
+];
+
+const scientificButtons = ["+/-", "x²", "√x"];
+
+const Calculator = ({ isScientificMode }: { isScientificMode: boolean }) => {
   const [display, setDisplay] = useState("0");
   const [currentValue, setCurrentValue] = useState<number | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
-  const [isScientificMode, setIsScientificMode] = useState(false);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [queue, setQueue] = useState<string[]>([]);
 
@@ -102,95 +119,41 @@ const Calculator = () => {
     }
   };
 
+  const handleButtonClick = (btn: string) => {
+    if (["+", "-", "*", "/"].includes(btn)) {
+      handleOperatorClick(btn);
+    } else if (btn === "=") {
+      handleEqualsClick();
+    } else if (btn === "C") {
+      handleClearClick();
+    } else if (btn === "+/-") {
+      handleSignClick();
+    } else if (btn === "x²") {
+      handleSquareClick();
+    } else if (btn === "√x") {
+      handleSquareRootClick();
+    } else {
+      handleNumberClick(btn);
+    }
+  };
+
   return (
-    <div
-      className={`w-64 p-4 rounded-lg ${
-        isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
-      }`}>
-      <div className="flex justify-between mb-4">
-        <Checkbox
-          label="Dark Mode"
-          checked={isDarkMode}
-          onChange={toggleDarkMode}
-          isDarkMode={isDarkMode}
-        />
-        <Checkbox
-          label="Scientific Mode"
-          checked={isScientificMode}
-          onChange={() => setIsScientificMode(!isScientificMode)}
-          isDarkMode={isDarkMode}
-        />
-      </div>
-      <Display value={display} isDarkMode={isDarkMode} />
+    <div className={`w-64 p-4`}>
+      <Display value={display} />
       <div className="grid grid-cols-4 gap-2 mt-4">
-        <Button onClick={() => handleNumberClick("7")} isDarkMode={isDarkMode}>
-          7
-        </Button>
-        <Button onClick={() => handleNumberClick("8")} isDarkMode={isDarkMode}>
-          8
-        </Button>
-        <Button onClick={() => handleNumberClick("9")} isDarkMode={isDarkMode}>
-          9
-        </Button>
-        <Button
-          onClick={() => handleOperatorClick("/")}
-          isDarkMode={isDarkMode}>
-          /
-        </Button>
-        <Button onClick={() => handleNumberClick("4")} isDarkMode={isDarkMode}>
-          4
-        </Button>
-        <Button onClick={() => handleNumberClick("5")} isDarkMode={isDarkMode}>
-          5
-        </Button>
-        <Button onClick={() => handleNumberClick("6")} isDarkMode={isDarkMode}>
-          6
-        </Button>
-        <Button
-          onClick={() => handleOperatorClick("*")}
-          isDarkMode={isDarkMode}>
-          *
-        </Button>
-        <Button onClick={() => handleNumberClick("1")} isDarkMode={isDarkMode}>
-          1
-        </Button>
-        <Button onClick={() => handleNumberClick("2")} isDarkMode={isDarkMode}>
-          2
-        </Button>
-        <Button onClick={() => handleNumberClick("3")} isDarkMode={isDarkMode}>
-          3
-        </Button>
-        <Button
-          onClick={() => handleOperatorClick("-")}
-          isDarkMode={isDarkMode}>
-          -
-        </Button>
-        <Button onClick={() => handleNumberClick("0")} isDarkMode={isDarkMode}>
-          0
-        </Button>
-        <Button onClick={handleEqualsClick} isDarkMode={isDarkMode}>
-          =
-        </Button>
-        <Button onClick={handleClearClick} isDarkMode={isDarkMode}>
-          C
-        </Button>
-        <Button
-          onClick={() => handleOperatorClick("+")}
-          isDarkMode={isDarkMode}>
-          +
-        </Button>
+        {buttons.map((btn, index) => (
+          <Button key={index} onClick={() => handleButtonClick(btn)}>
+            {btn}
+          </Button>
+        ))}
       </div>
       {isScientificMode && (
         <div className="grid grid-cols-3 gap-2 mt-2">
-          <Button onClick={handleSignClick} isDarkMode={isDarkMode}>
-            +/-
-          </Button>
-          <Button onClick={handleSquareClick} isDarkMode={isDarkMode}>
-            x²
-          </Button>
-          <Button onClick={handleSquareRootClick} isDarkMode={isDarkMode}>
-            √x
-          </Button>
+          {scientificButtons.map((btn, index) => (
+            <Button key={index} onClick={() => handleButtonClick(btn)}>
+              {btn}
+            </Button>
+          ))}
         </div>
       )}
     </div>

@@ -1,16 +1,17 @@
 import React from "react";
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 interface ButtonProps {
   onClick: () => void;
   children: React.ReactNode;
-  isDarkMode: boolean;
 }
 
-const Button = ({ onClick, children, isDarkMode }: ButtonProps) => {
+const Button = ({ onClick, children }: ButtonProps) => {
+  const { isDarkMode } = useDarkMode();
   return (
     <button
       className={`p-2 text-lg rounded ${
-        isDarkMode ? "bg-gray-600 text-white" : "bg-gray-300 text-black"
+        isDarkMode ? "bg-[#666] text-white" : "bg-[#f0f0f0] text-black"
       } hover:opacity-80`}
       onClick={onClick}>
       {children}
