@@ -53,16 +53,11 @@ export const CalculatorProvider = ({
   };
 
   const handleEqualsClick = () => {
-    if (
-      currentValue !== null &&
-      operator !== null &&
-      queue.length > 0 &&
-      !queue[queue.length - 1].match(/[+\-*/]/)
-    ) {
+    if (currentValue !== null && operator !== null && !waitingForOperand) {
       const inputValue = parseFloat(display);
       const result = performOperation(currentValue, inputValue, operator);
       setDisplay(result.toString());
-      setCurrentValue(result);
+      setCurrentValue(null);
       setOperator(null);
       setWaitingForOperand(true);
       setQueue((prevQueue) => [...prevQueue, "=", result.toString()]);
