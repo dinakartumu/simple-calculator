@@ -18,79 +18,93 @@ export const CalculatorProvider = ({
   children: React.ReactNode;
 }) => {
   const [display, setDisplay] = useState("0");
-  const [currentValue, setCurrentValue] = useState<number | null>(null);
+  const [currentValue, setCurrentValue] = useState<string | null>(null);
+  const [previousValue, setPreviousValue] = useState<string | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
-  const [waitingForOperand, setWaitingForOperand] = useState(false);
-  const [queue, setQueue] = useState<string[]>([]);
   const [isScientificMode, setIsScientificMode] = useState(false);
 
   const handleNumberClick = (num: string) => {
-    if (waitingForOperand) {
-      setDisplay(num);
-      setWaitingForOperand(false);
-    } else {
-      setDisplay((prevDisplay) =>
-        prevDisplay === "0" ? num : prevDisplay + num
-      );
-    }
-    setQueue((prevQueue) => [...prevQueue, num]);
+    const newInput = currentValue === null ? num : currentValue + num;
+    setCurrentValue(newInput);
+    setDisplay(newInput);
   };
 
   const handleOperatorClick = (op: string) => {
-    const inputValue = parseFloat(display);
-    if (queue.length > 0 && queue[queue.length - 1].match(/[+\-*/]/)) {
-      setQueue((prevQueue) => prevQueue.slice(0, -1));
-    } else if (currentValue === null) {
-      setCurrentValue(inputValue);
-    } else if (operator) {
-      const result = performOperation(currentValue, inputValue, operator);
-      setCurrentValue(result);
+    if (previousValue === null) {
+      setPreviousValue(currentValue);
+      setCurrentValue(null);
+    } else if (
+      operator !== null &&
+      previousValue !== null &&
+      currentValue !== null
+    ) {
+      const result = performOperation(
+        parseFloat(previousValue),
+        parseFloat(currentValue),
+        operator
+      );
+      setPreviousValue(result.toString());
+      setCurrentValue(null);
       setDisplay(result.toString());
     }
-    setWaitingForOperand(true);
     setOperator(op);
-    setQueue((prevQueue) => [...prevQueue, op]);
   };
 
   const handleEqualsClick = () => {
-    if (currentValue !== null && operator !== null && !waitingForOperand) {
-      const inputValue = parseFloat(display);
-      const result = performOperation(currentValue, inputValue, operator);
+    if (operator !== null && previousValue !== null && currentValue !== null) {
+      const result = performOperation(
+        parseFloat(previousValue || "0"),
+        parseFloat(currentValue || "0"),
+        operator
+      );
       setDisplay(result.toString());
-      setCurrentValue(null);
+      setPreviousValue(null);
+      setCurrentValue(result.toString());
       setOperator(null);
-      setWaitingForOperand(true);
-      setQueue((prevQueue) => [...prevQueue, "=", result.toString()]);
     }
   };
 
   const handleClearClick = () => {
     setDisplay("0");
     setCurrentValue(null);
+    setPreviousValue(null);
     setOperator(null);
-    setWaitingForOperand(false);
-    setQueue([]);
   };
 
   const handleSignClick = () => {
-    setDisplay((prevDisplay) => {
-      const value = parseFloat(prevDisplay);
-      return (-value).toString();
-    });
+    const toggleSign = (value: string | null) =>
+      value ? (-parseFloat(value)).toString() : "0";
+
+    if (currentValue === null) {
+      setPreviousValue((prev) => toggleSign(prev));
+    } else {
+      setCurrentValue((prev) => toggleSign(prev));
+    }
+    setDisplay((prev) => toggleSign(prev));
   };
 
   const handleSquareClick = () => {
-    setDisplay((prevDisplay) => {
-      const value = parseFloat(prevDisplay);
-      return (value * value).toString();
-    });
+    const square = (value: string | null) =>
+      value ? (parseFloat(value) ** 2).toString() : "0";
+
+    if (currentValue === null) {
+      setPreviousValue((prev) => square(prev));
+    } else {
+      setCurrentValue((prev) => square(prev));
+    }
+    setDisplay((prev) => square(prev));
   };
 
   const handleSquareRootClick = () => {
-    setDisplay((prevDisplay) => {
-      const value = parseFloat(prevDisplay);
-      return Math.sqrt(value).toString();
-    });
+    const calculateSquareRoot = (value: string | null) =>
+      value ? Math.sqrt(parseFloat(value)).toString() : "0";
+
+    if (currentValue === null) {
+      setPreviousValue((prev) => calculateSquareRoot(prev));
+    } else {
+      setCurrentValue((prev) => calculateSquareRoot(prev));
+    }
+    setDisplay((prev) => calculateSquareRoot(prev));
   };
 
   const performOperation = (a: number, b: number, op: string): number => {
